@@ -1,0 +1,124 @@
+{
+    "intents": [
+        {
+            "name": "decouverte_offre",
+            "examples": [
+                "Quelles sont vos offres disponibles ?",
+                "Je cherche un nouveau forfait mobile",
+                "Avez-vous des promotions en cours ?",
+                "Quelle est la différence entre vos packs ?"
+            ],
+            "response": "Nous proposons 3 formules adaptées à vos besoins :\n- Économique (50Go, appels illimités) à 9.99€/mois\n- Standard (100Go, roaming inclus) à 14.99€/mois\n- Premium (illimité, priorité réseau) à 24.99€/mois\nNos offres incluent toujours le service client 24/7."
+        },
+        {
+            "name": "demande_prix",
+            "examples": [
+                "Quel est le prix de votre service ?",
+                "Pouvez-vous me donner un devis ?",
+                "Y a-t-il des frais d'installation ?",
+                "Le prix inclut-il la TVA ?"
+            ],
+            "response": "Nos tarifs démarrent à partir de 9.99€/mois (hors promo).\nUn devis personnalisé est disponible ici : [lien].\nPas de frais cachés - la TVA est incluse dans nos prix affichés.\nActuellement, bénéficiez de -30% pendant 12 mois avec le code PROMO30."
+        },
+        {
+            "name": "souscription",
+            "examples": [
+                "Comment souscrire à votre offre ?",
+                "Je veux m'abonner",
+                "Quels documents faut-il pour ouvrir un compte ?",
+                "Puis-je souscrire en ligne ?"
+            ],
+            "response": "Vous pouvez souscrire :\n1. En ligne : [lien vers l'espace client]\n2. Par téléphone au 0800 123 456\n3. En boutique avec nos conseillers\nVous aurez besoin :\n- Pièce d'identité\n- RIB pour le prélèvement\n- Justificatif de domicile"
+        },
+        {
+            "name": "confirmation_compte",
+            "examples": [
+                "J'ai reçu un email de confirmation.",
+                "Comment activer mon compte ?",
+                "Mon inscription est-elle validée ?",
+                "Combien de temps pour activer ma ligne ?"
+            ],
+            "response": "Votre compte sera actif sous 24h après :\n1. Cliquez sur le lien dans l'email reçu\n2. Validez votre numéro de mobile\n3. Configurez votre espace client\nProblème ? Contactez l'activation au 0800 789 123 ou vérifiez vos spams."
+        },
+        {
+            "name": "livraison_sim",
+            "examples": [
+                "Où en est ma commande de SIM ?",
+                "Quand vais-je recevoir ma carte ?",
+                "Mon colis est en retard",
+                "Puis-je suivre mon envoi ?"
+            ],
+            "response": "Livraison en 48h (jours ouvrés).\nSuivez votre commande avec le numéro [reference] sur [lien suivi].\nEn cas de retard : vérifiez votre boîte aux lettres ou contactez le service livraison au 0800 456 789.\nAlternative : retrait express en boutique sur RDV."
+        },
+        {
+            "name": "probleme_technique",
+            "examples": [
+                "Je ne peux pas me connecter.",
+                "Le site plante souvent.",
+                "Ma 4G ne fonctionne pas",
+                "Problème de réseau dans ma zone"
+            ],
+            "response": "Solutions rapides :\n1. Redémarrez votre appareil\n2. Vérifiez la couverture sur [lien carte]\n3. Mettez à jour vos paramètres APN\nSi le problème persiste, notre technicien vous rappelle sous 2h au 0800 123 789 ou via chat en ligne."
+        },
+        {
+            "name": "facturation",
+            "examples": [
+                "Ma facture semble incorrecte",
+                "Comment contester un prélèvement ?",
+                "Où trouver mes anciennes factures ?",
+                "Puis-je changer de date de prélèvement ?"
+            ],
+            "response": "Gérez votre facturation :\n- Consultez vos documents dans [espace client > factures]\n- Signalez une erreur sous 30 jours via le formulaire [lien]\n- Options de paiement : virement, carte, prélèvement\nService facturation : facturation@telco.com ou 0800 987 654"
+        },
+        {
+            "name": "changement_offre",
+            "examples": [
+                "Je veux changer de forfait",
+                "Comment passer à une offre supérieure ?",
+                "Modifier mon option internationale",
+                "Ajouter un membre à mon forfait famille"
+            ],
+            "response": "Modifiez votre offre sans frais :\n1. Connectez-vous à [espace client]\n2. Choisissez 'Modifier mon offre'\n3. Validez avant le 10 du mois\nConseil : comparez les options avec notre simulateur [lien]\nBesoin d'aide ? Contactez le 0800 123 000"
+        },
+        {
+            "name": "resiliation",
+            "examples": [
+                "Comment résilier mon contrat ?",
+                "Quelle est la période de préavis ?",
+                "Je veux porter mon numéro ailleurs",
+                "Quels sont les frais de résiliation ?"
+            ],
+            "response": "Processus de résiliation :\n- Préavis de 30 jours\n- Demande par LRAR ou formulaire en ligne [lien]\n- Conservez votre numéro avec le code RIO : #123#\nAvant de partir : consultez nos offres de fidélisation au 0800 800 800"
+        },
+        {
+            "name": "reclamation",
+            "examples": [
+                "Je veux déposer une réclamation",
+                "Comment signaler un dysfonctionnement ?",
+                "Mon problème n'est pas résolu",
+                "Demande d'indemnisation pour interruption"
+            ],
+            "response": "Service réclamations :\n1. Décrivez votre problème via [formulaire dédié]\n2. Référence : INC-2024-XXXXX\n3. Délai de traitement : 5 jours ouvrés\nSuivi possible au 0800 654 321 ou mediation@telco.fr\nNous nous engageons à vous répondre sous 48h."
+        },
+        {
+            "name": "fidelite",
+            "examples": [
+                "Avez-vous des avantages fidélité ?",
+                "Je suis client depuis longtemps",
+                "Offres spéciales clients existants ?",
+                "Comment gagner des points de fidélité ?"
+            ],
+            "response": "Programme fidélité Telco+ :\n- 1€ dépensé = 1 point\n- 500 pts = mois gratuit\n- Avantages exclusifs après 2 ans\nVotre statut : Argent (15% de réduction)\nEspace membre : [lien programme]\nService dédié : 0800 555 999"
+        },
+        {
+            "name": "assistance_technique",
+            "examples": [
+                "Comment configurer mon routeur ?",
+                "Problème de télévision connectée",
+                "Mon débit est trop lent",
+                "Aide pour installer l'application mobile"
+            ],
+            "response": "Assistance 24/7 :\n- Guides pas à pas : [lien tutos]\n- Diagnostic en ligne : [lien test]\n- RDV technique à domicile (48h)\nContactez nos experts :\nChat : [lien chat]\nTéléphone : 0800 321 654\nSMS : 6 12 24 (gratuit)"
+        }
+    ]
+}
