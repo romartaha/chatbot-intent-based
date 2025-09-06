@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -o ./base/
+    kompose.version: 1.37.0 (HEAD)
+  labels:
+    io.kompose.service: frontend
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: frontend
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o ./base/
+        kompose.version: 1.37.0 (HEAD)
+      labels:
+        io.kompose.service: frontend
+    spec:
+      containers:
+        - env:
+            - name: LLAMA_SERVER_URL
+              value: http://llama-server:8080
+          image: frontend
+          name: frontend
+          ports:
+            - containerPort: 8501
+              protocol: TCP
+      restartPolicy: Always

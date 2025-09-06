@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -o ./base/
+    kompose.version: 1.37.0 (HEAD)
+  labels:
+    io.kompose.service: llama-server
+  name: llama-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: llama-server
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o ./base/
+        kompose.version: 1.37.0 (HEAD)
+      labels:
+        io.kompose.service: llama-server
+    spec:
+      containers:
+        - image: llama-server
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:8080/health
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: llama-server
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /models
+              name: llama-server-cm0
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            name: llama-server-cm0
+          name: llama-server-cm0

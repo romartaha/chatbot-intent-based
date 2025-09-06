@@ -1,0 +1,40 @@
+services:
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    environment:
+      - LLAMA_SERVER_URL=http://llama-server:8080
+    depends_on:
+      - llama-server
+    networks:
+      - inwi-net
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
+
+  llama-server:
+    build: ./llama-server
+    container_name: llama-server
+    volumes:
+      - ./models:/models:ro
+    networks:
+      - inwi-net
+    expose:
+      - 8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    container_name: redis
+    networks:
+      - inwi-net
+    restart: unless-stopped
+
+networks:
+  inwi-net:
+    driver: bridge

@@ -1,0 +1,28 @@
+git clone https://github.com/ggerganov/llama.cpp 
+cd llama.cpp
+mkdir build
+cd build
+# Supprimer l'ancien build
+rm -rf build
+
+# Configurer avec les flags nécessaires
+cmake -B build \
+  -DCMAKE_OSX_SYSROOT="$(xcrun --show-sdk-path)" \
+  -DCMAKE_CXX_FLAGS="-I$(xcrun --show-sdk-path)/usr/include/c++/v1" \
+  -DLLAMA_METAL=ON
+
+cmake --build build --target llama-server --parallel $(sysctl -n hw.logicalcpu) -- VERBOSE=1
+
+ls build/bin/llama-server
+
+./build/bin/llama-server -m ../qwen2.5-3b-instruct-q4_k_m.gguf
+
+./build/bin/llama-server \
+  -m ../qwen2.5-3b-instruct-q4_k_m.gguf \
+  --n-gpu-layers 99 \
+  --ctx-size 4096 \
+  --host 0.0.0.0 \
+  --port 8080 \
+  --cont-batching \
+  --mlock \
+  -c 2048

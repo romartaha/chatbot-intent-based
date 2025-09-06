@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'llama-server'
+    static_configs:
+      - targets: ['llama-server:8080']  # si llama-server expose /metrics
+  - job_name: 'frontend'
+    static_configs:
+      - targets: ['frontend:8501']
