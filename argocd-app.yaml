@@ -1,16 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: mon-app
+  name: my-chatbot
   namespace: argocd
 spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: default
   source:
-    repoURL: https://github.com/votre-username/mon-app-gitops.git
-    targetRevision: main
-    path: apps/mon-app/base
+    repoURL: https://github.com/romartaha/chatbot-intent-based.git
+    targetRevision: master
+    path: /base
   project: default
   syncPolicy:
     automated:
