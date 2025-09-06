@@ -13,6 +13,7 @@ env:
 permissions:
   contents: write
   packages: write
+  security-events: write  # <-- Ajouté pour upload-sarif
 
 jobs:
   build-and-scan:
@@ -22,7 +23,7 @@ jobs:
         service: [frontend, llama-server]
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4  # Mis à jour vers v4
+      uses: actions/checkout@v4
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
@@ -61,14 +62,14 @@ jobs:
       if: github.event_name == 'push'
       uses: aquasecurity/trivy-action@master
       with:
-        # ✅ Correction majeure : on scanne le premier tag construit, pas ":latest"
+        # ✅ On scanne le premier tag construit (ex: :master ou :sha-frontend), pas ":latest"
         image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         format: sarif
         output: trivy-results-${{ matrix.service }}.sarif
 
     - name: Upload Trivy scan results
       if: github.event_name == 'push'
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3  # ✅ Mis à jour vers v3
       with:
         sarif_file: trivy-results-${{ matrix.service }}.sarif
 
@@ -78,7 +79,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4  # Mis à jour vers v4
+      uses: actions/checkout@v4
       with:
         token: ${{ secrets.PAT }}  # Utilisez le PAT ici aussi
 
