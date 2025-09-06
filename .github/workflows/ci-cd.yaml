@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for INWI App
+name: CI/CD Pipeline for INWI Application
 
 on:
   push:
@@ -10,6 +10,10 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build-and-scan:
     runs-on: ubuntu-latest
@@ -18,7 +22,7 @@ jobs:
         service: [frontend, llama-server]
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4  # Mis à jour vers v4
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
@@ -57,7 +61,8 @@ jobs:
       if: github.event_name == 'push'
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.service }}:latest
+        # ✅ Correction majeure : on scanne le premier tag construit, pas ":latest"
+        image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         format: sarif
         output: trivy-results-${{ matrix.service }}.sarif
 
@@ -73,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4  # Mis à jour vers v4
       with:
         token: ${{ secrets.PAT }}  # Utilisez le PAT ici aussi
 
@@ -84,11 +89,11 @@ jobs:
 
     - name: Update frontend image tag
       run: |
-        sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/frontend:latest|' base/frontend-deployment.yaml
+        sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/frontend:master|' base/frontend-deployment.yaml
 
     - name: Update llama-server image tag
       run: |
-        sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/llama-server:latest|' base/llama-server-deployment.yaml
+        sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/llama-server:master|' base/llama-server-deployment.yaml
 
     - name: Commit and push changes
       run: |
@@ -98,6 +103,6 @@ jobs:
         if git diff --staged --quiet; then
           echo "Aucun changement détecté"
         else
-          git commit -m "CI: Update image tags to latest [skip ci]"
+          git commit -m "CI: Update image tags to master [skip ci]"
           git push
         fi
