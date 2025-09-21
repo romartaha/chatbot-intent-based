@@ -15,7 +15,8 @@ permissions:
   packages: write
   security-events: write
   actions: read
-  id-token: write # Ajouté pour l'authentification
+  id-token: write
+  repository-projects: write
 
 jobs:
   build-and-scan:
@@ -35,7 +36,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }} # Utiliser GITHUB_TOKEN temporairement
+          password: ${{ secrets.PAT }} # Retour au PAT pour les permissions GHCR
           
       - name: Extract metadata for Docker
         id: meta
@@ -50,7 +51,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             
-      - name: Build Docker image (without push first)
+      - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           context: ./${{ matrix.service }}
