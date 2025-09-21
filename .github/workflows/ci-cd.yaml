@@ -13,7 +13,7 @@ env:
 permissions:
   contents: write
   packages: write
-  security-events: write  # <-- Ajouté pour upload-sarif
+  security-events: write # <-- Ajouté pour upload-sarif
 
 jobs:
   build-and-scan:
@@ -22,88 +22,89 @@ jobs:
       matrix:
         service: [frontend, llama-server]
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Log in to GitHub Container Registry
-      uses: docker/login-action@v2
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.PAT }}  # Utilisez le PAT au lieu de GITHUB_TOKEN
-
-    - name: Extract metadata for Docker
-      id: meta
-      uses: docker/metadata-action@v4
-      with:
-        images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.service }}
-        tags: |
-          type=sha,prefix=,suffix=-${{ matrix.service }}
-          type=ref,event=tag
-          type=ref,event=branch
-          type=ref,event=pr
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
-
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v4
-      with:
-        context: ./${{ matrix.service }}
-        push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
-    - name: Scan image with Trivy
-      if: github.event_name == 'push'
-      uses: aquasecurity/trivy-action@master
-      with:
-        # ✅ On scanne le premier tag construit (ex: :master ou :sha-frontend), pas ":latest"
-        image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-        format: sarif
-        output: trivy-results-${{ matrix.service }}.sarif
-
-    - name: Upload Trivy scan results
-      if: github.event_name == 'push'
-      uses: github/codeql-action/upload-sarif@v3  # ✅ Mis à jour vers v3
-      with:
-        sarif_file: trivy-results-${{ matrix.service }}.sarif
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.PAT }} # Utilisez le PAT au lieu de GITHUB_TOKEN
+          
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.service }}
+          tags: |
+            type=sha,prefix=,suffix=-${{ matrix.service }}
+            type=ref,event=tag
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./${{ matrix.service }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          
+      # ✅ Scan uniquement le service llama-server, pas le frontend
+      - name: Scan image with Trivy
+        if: github.event_name == 'push' && matrix.service == 'llama-server'
+        uses: aquasecurity/trivy-action@master
+        with:
+          # On scanne le premier tag construit (ex: :master ou :sha-llama-server)
+          image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          format: sarif
+          output: trivy-results-${{ matrix.service }}.sarif
+          
+      - name: Upload Trivy scan results
+        if: github.event_name == 'push' && matrix.service == 'llama-server'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results-${{ matrix.service }}.sarif
 
   update-manifests:
     needs: build-and-scan
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.PAT }}  # Utilisez le PAT ici aussi
-
-    - name: Setup Git identity
-      run: |
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
-
-    - name: Update frontend image tag
-      run: |
-        sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/frontend:master|' base/frontend-deployment.yaml
-
-    - name: Update llama-server image tag
-      run: |
-        sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/llama-server:master|' base/llama-server-deployment.yaml
-
-    - name: Commit and push changes
-      run: |
-        git add base/frontend-deployment.yaml
-        git add base/llama-server-deployment.yaml
-        # Vérifier s'il y a des changements à commiter
-        if git diff --staged --quiet; then
-          echo "Aucun changement détecté"
-        else
-          git commit -m "CI: Update image tags to master [skip ci]"
-          git push
-        fi
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }} # Utilisez le PAT ici aussi
+          
+      - name: Setup Git identity
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+      - name: Update frontend image tag
+        run: |
+          sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/frontend:master|' base/frontend-deployment.yaml
+          
+      - name: Update llama-server image tag
+        run: |
+          sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/llama-server:master|' base/llama-server-deployment.yaml
+          
+      - name: Commit and push changes
+        run: |
+          git add base/frontend-deployment.yaml
+          git add base/llama-server-deployment.yaml
+          # Vérifier s'il y a des changements à commiter
+          if git diff --staged --quiet; then
+            echo "Aucun changement détecté"
+          else
+            git commit -m "CI: Update image tags to master [skip ci]"
+            git push
+          fi
