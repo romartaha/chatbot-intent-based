@@ -23,7 +23,7 @@ spec:
         io.kompose.service: llama-server
     spec:
       containers:
-        - image: llama-server
+        - image: ghcr.io/romartaha/llama-server:master
           livenessProbe:
             exec:
               command:
