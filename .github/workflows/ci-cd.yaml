@@ -54,21 +54,12 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./${{ matrix.service }}
-          push: false
+          platforms: linux/amd64,linux/arm64 # Support multi-architecture
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          load: true # Charge l'image localement
-
-      - name: Push Docker image
-        if: github.event_name != 'pull_request'
-        run: |
-          # Pousser chaque tag individuellement
-          for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n'); do
-            echo "Pushing $tag"
-            docker push "$tag" || echo "Failed to push $tag"
-          done
           
       # ✅ Scan uniquement le service llama-server, pas le frontend
       - name: Scan image with Trivy
