@@ -14,7 +14,8 @@ permissions:
   contents: write
   packages: write
   security-events: write
-  actions: read # Ajouté pour l'accès aux workflow runs
+  actions: read
+  id-token: write # Ajouté pour l'authentification
 
 jobs:
   build-and-scan:
@@ -34,7 +35,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }} # Utiliser GITHUB_TOKEN pour éviter les problèmes de permissions
+          password: ${{ secrets.GITHUB_TOKEN }} # Utiliser GITHUB_TOKEN temporairement
           
       - name: Extract metadata for Docker
         id: meta
@@ -44,20 +45,30 @@ jobs:
           tags: |
             type=sha,prefix=,suffix=-${{ matrix.service }}
             type=ref,event=tag
-            type=ref,event=branch
+            type=ref,event=branch,suffix=-${{ matrix.service }}
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             
-      - name: Build and push Docker image
+      - name: Build Docker image (without push first)
         uses: docker/build-push-action@v4
         with:
           context: ./${{ matrix.service }}
-          push: ${{ github.event_name != 'pull_request' }}
+          push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          load: true # Charge l'image localement
+
+      - name: Push Docker image
+        if: github.event_name != 'pull_request'
+        run: |
+          # Pousser chaque tag individuellement
+          for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n'); do
+            echo "Pushing $tag"
+            docker push "$tag" || echo "Failed to push $tag"
+          done
           
       # ✅ Scan uniquement le service llama-server, pas le frontend
       - name: Scan image with Trivy
@@ -72,6 +83,8 @@ jobs:
       - name: Upload Trivy scan results
         if: github.event_name == 'push' && matrix.service == 'llama-server'
         uses: github/codeql-action/upload-sarif@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Utiliser GITHUB_TOKEN pour l'upload SARIF
         with:
           sarif_file: trivy-results-${{ matrix.service }}.sarif
 
